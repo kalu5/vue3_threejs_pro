@@ -1,6 +1,6 @@
 <template>
   <div class="house-wrap" ref="houseRef">
-    HOUSE_3D 
+    HOUSE_3D hdr
   </div>
 </template>
 
@@ -10,6 +10,8 @@ import { ref, onMounted } from 'vue'
 import * as THREE from 'three';
 
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+import { RGBELoader } from 'three/examples/jsm/loaders/RGBELoader'
 
 // 创建场景
 const scene = new THREE.Scene();
@@ -22,7 +24,7 @@ window.innerWidth / window.innerHeight,
 )
 
 // 设置相机位置
-camera.position.set(0, 0, 0.1)
+camera.position.z = 0.1
 
 // 创建渲染器
 const renderer = new THREE.WebGLRenderer()
@@ -39,33 +41,20 @@ const render = () => {
   requestAnimationFrame(render)
 }
 
-// 添加立方体
-const geometry = new THREE.BoxGeometry(10, 10, 10)
-// 基础材质
-const material = new THREE.MeshBasicMaterial({
-  color: 0x00ff00
+// 添加圆
+const geometry = new THREE.SphereGeometry(5, 32, 32)
+
+// rgbe加载器
+const loader = new RGBELoader();
+loader.load('/imgs/hdr/Living.hdr', (texture) => {
+  const material = new THREE.MeshBasicMaterial({
+    map: texture
+  })
+  const sphere = new THREE.Mesh(geometry, material)
+  sphere.geometry.scale(1, 1, -1)
+  // 添加到场景中
+  scene.add(sphere)
 })
-
-// 创建纹理材质
-const livingArr = ['4_l', '4_r', '4_u', '4_d', '4_b', '4_f']
-const boxMaterials = []
-
-livingArr.forEach(live => {
-  // 加载纹理
-  const texture = new THREE.TextureLoader().load(`/imgs/living/${live}.jpg`)
-  if(['4_u', '4_d'].includes(live)) {
-    texture.rotation = Math.PI;
-    texture.center = new THREE.Vector2(.5, .5)
-  }
-  boxMaterials.push(new THREE.MeshBasicMaterial({map: texture}))
-})
-
-// 创建物体
-const cube =  new THREE.Mesh(geometry, boxMaterials)
-// 设置物理比例 进入立方体内
-cube.geometry.scale(1, 1, -1)
-// 添加到场景中
-scene.add(cube)
 
 onMounted(() => {
   // 添加轨道控制器

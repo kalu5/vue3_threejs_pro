@@ -19,9 +19,21 @@ const router = createRouter({
     },
     {
       path: '/house',
-      name: 'house',
-      component: () => import ('../views/house/house-index.vue')
-    }
+      component: () => import ('../views/house/house-main.vue'),
+      children: [
+        {
+          path: 'index',
+          name: 'index',
+          component: () => import ('../views/house/house-index.vue'),
+        },
+        {
+          path: 'living',
+          name: 'living',
+          component: () => import ('../views/house/house-living.vue')
+        }
+      ]
+    },
+    
   ]
 })
 
